@@ -28,3 +28,25 @@ export const deleteProduct = async (
 ): Promise<ProductDocument | null> => {
   return await Product.findByIdAndDelete(id);
 };
+
+export const getProductsPaginated = async (
+  page = 1,
+  limit = 10
+) => {
+  const skip = (page - 1) * limit;
+
+  const [items, totalItems] = await Promise.all([
+    Product.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
+    Product.countDocuments(),
+  ]);
+
+  return {
+    items,
+    meta: {
+      page,
+      limit,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+    },
+  };
+};
